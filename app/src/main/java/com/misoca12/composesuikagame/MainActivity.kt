@@ -141,7 +141,7 @@ fun FruitObject(
     val density = LocalDensity.current
     Box(
         Modifier
-            .offset(with(density) {fruitMeta.offset.x.toDp() }, with(density) {fruitMeta.offset.y.toDp() })
+            .offset(with(density) {fruitMeta.offset.x.toDp() - (fruitMeta.fruit.size / 2) }, with(density) {fruitMeta.offset.y.toDp() })
 //            .padding(top = 32.dp)
     ) {
         Card(
