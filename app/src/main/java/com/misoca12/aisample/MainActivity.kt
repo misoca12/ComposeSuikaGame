@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +32,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.misoca12.aisample.ui.theme.AISampleTheme
 import de.apuri.physicslayout.lib.BodyConfig
 import de.apuri.physicslayout.lib.PhysicsLayout
@@ -53,13 +59,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun GameScreen() {
-    var starCounter by remember { mutableStateOf(0) }
-    val stars = remember { mutableStateListOf<StarMeta>() }
+    var fruitCounter by remember { mutableStateOf(0) }
+    val fruits = remember { mutableStateListOf<FruitMeta>() }
 
     Surface(
         modifier = Modifier.fillMaxSize().pointerInput(Unit) {
             detectTapGestures {
-                stars.add(StarMeta("star-${starCounter++}", blue, it))
+                fruits.add(FruitMeta("fruit-${fruitCounter++}", Fruit.random(), it))
             }
         },
         color = MaterialTheme.colorScheme.background
@@ -75,16 +81,14 @@ fun GameScreen() {
         PhysicsLayout(
             modifier = Modifier.systemBarsPadding(),
             simulation = simulation,
-            shape = RoundedCornerShape(64.dp)
+//            shape = RoundedCornerShape(64.dp)
         ) {
-            stars.forEach { starMeta ->
-                key(starMeta.id) {
-                    Star(
-                        id = starMeta.id,
-                        color = starMeta.color,
-                        offset = starMeta.offset
+            fruits.forEach { fruitMeta ->
+                key(fruitMeta.id) {
+                    FruitObject(
+                        fruitMeta
                     ) { id ->
-                        stars.removeIf { it.id == id }
+                        fruits.removeIf { it.id == id }
                     }
                 }
             }
@@ -136,47 +140,48 @@ fun StarLauncher(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BoxScope.Star(
-    id: String,
-    color: Color,
-    offset: Offset,
+fun FruitObject(
+    fruitMeta: FruitMeta,
     onClick: (String) -> Unit
 ) {
     val density = LocalDensity.current
     Box(
         Modifier
-//            .align(Alignment.TopCenter)
-            .offset(with(density) {offset.x.toDp() }, with(density) {offset.y.toDp() })
-            .padding(top = 32.dp)
+            .offset(with(density) {fruitMeta.offset.x.toDp() }, with(density) {fruitMeta.offset.y.toDp() })
+//            .padding(top = 32.dp)
     ) {
         Card(
             modifier = Modifier
                 .physicsBody(
                     shape = CircleShape,
                     dragConfig = DragConfig()
-                ),
+                )
+                .size(fruitMeta.fruit.size),
             shape = CircleShape,
-            colors = CardDefaults.cardColors(containerColor = color),
-            onClick = { onClick(id) }
+            colors = CardDefaults.cardColors(containerColor = fruitMeta.fruit.color),
+            onClick = { onClick(fruitMeta.id) }
         ) {
-            Icon(
-                modifier = Modifier
-                    .size(48.dp)
-                    .padding(4.dp),
-                imageVector = Icons.Default.Star,
-                contentDescription = "",
-                tint = Color.White
-            )
+            Box(
+                modifier = Modifier.size(fruitMeta.fruit.size),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = fruitMeta.fruit.displayName.substring(0, 1),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = fruitMeta.fruit.textSize,
+                    color = Color.White
+                )
+            }
         }
     }
 
 }
 
 @Immutable
-data class StarMeta(
+data class FruitMeta(
     val id: String,
-    val color: Color,
+    val fruit: Fruit,
     val offset: Offset
 )
-
-private val blue = Color(0xFF42A5F5)
