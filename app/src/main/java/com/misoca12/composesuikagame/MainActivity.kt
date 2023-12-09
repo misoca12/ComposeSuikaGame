@@ -66,6 +66,12 @@ fun GameScreen() {
     ) {
         val simulation = rememberSimulation(onCollision = { id1: String, id2: String ->
                 Log.d("MainActivity", "onCollision $id1 and $id2")
+                val fruit1 = fruits.firstOrNull { it.id == id1 } ?: return@rememberSimulation
+                val fruit2 = fruits.firstOrNull { it.id == id2 } ?: return@rememberSimulation
+                if (fruit1.fruit == fruit2.fruit) {
+                    fruits.removeIf { it.id == id1 }
+                    fruits.removeIf { it.id == id2 }
+                }
             })
 
         GravitySensor { (x, y) ->
@@ -91,47 +97,6 @@ fun GameScreen() {
     }
 }
 
-@Composable
-fun StarLauncher(
-    color: Color,
-    onStar: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    Card(
-        modifier = Modifier
-            .physicsBody(
-                shape = CircleShape,
-                bodyConfig = BodyConfig(isStatic = true)
-            )
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        val job = scope.launch {
-                            while (true) {
-                                onStar()
-                                delay(100)
-                            }
-                        }
-                        tryAwaitRelease()
-                        job.cancel()
-                    }
-                )
-            },
-        shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = color)
-    ) {
-        Box(
-            modifier = Modifier.size(64.dp)
-        ) {
-            Icon(
-                modifier = Modifier.align(Alignment.Center),
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add red"
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FruitObject(
@@ -142,11 +107,11 @@ fun FruitObject(
     Box(
         Modifier
             .offset(with(density) {fruitMeta.offset.x.toDp() - (fruitMeta.fruit.size / 2) }, with(density) {fruitMeta.offset.y.toDp() })
-//            .padding(top = 32.dp)
     ) {
         Card(
             modifier = Modifier
                 .physicsBody(
+                    id = fruitMeta.id,
                     shape = CircleShape,
                     dragConfig = DragConfig()
                 )
