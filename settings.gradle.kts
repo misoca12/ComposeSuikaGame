@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AISample"
+rootProject.name = "ComposeSuikaGame"
 include(":app")
 include(":ComposePhysicsLayout:lib")

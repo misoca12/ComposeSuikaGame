@@ -1,4 +1,4 @@
-package com.misoca12.aisample
+package com.misoca12.composesuikagame
 
 import org.junit.Test
 

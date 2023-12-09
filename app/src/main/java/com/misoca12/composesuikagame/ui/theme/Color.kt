@@ -1,4 +1,4 @@
-package com.misoca12.aisample.ui.theme
+package com.misoca12.composesuikagame.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

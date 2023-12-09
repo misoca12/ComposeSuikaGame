@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.misoca12.aisample"
+    namespace = "com.misoca12.composesuikagame"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.misoca12.aisample"
+        applicationId = "com.misoca12.composesuikagame"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
