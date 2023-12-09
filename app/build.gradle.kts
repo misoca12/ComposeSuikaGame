@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":ComposePhysicsLayout:lib"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -57,8 +58,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation)
-    implementation("io.github.libktx:ktx-box2d:1.12.1-rc1")
-    implementation("io.github.klassenkonstantin:physics-layout:0.4.1")
+//    implementation("io.github.klassenkonstantin:physics-layout:0.4.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

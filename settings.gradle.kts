@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AISample"
 include(":app")
+include(":ComposePhysicsLayout:lib")
