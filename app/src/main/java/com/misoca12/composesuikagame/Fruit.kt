@@ -12,10 +12,10 @@ enum class Fruit(
     val size: Dp,
     val textSize: TextUnit
 ) {
-    WATERMELON("スイカ", Color(0xFF30671F), 400.dp, 200.sp),
-    MELON("メロン", Color(0xFF87B83D), 300.dp, 160.sp),
-    PINEAPPLE("パイナップル", Color(0xFFF1D248), 240.dp, 120.sp),
-    PEACH("モモ", Color(0xFFF5C9C1), 180.dp, 80.sp),
+    WATERMELON("スイカ", Color(0xFF30671F), 280.dp, 140.sp),
+    MELON("メロン", Color(0xFF87B83D), 240.dp, 130.sp),
+    PINEAPPLE("パイナップル", Color(0xFFF1D248), 200.dp, 100.sp),
+    PEACH("モモ", Color(0xFFF5C9C1), 160.dp, 80.sp),
     PEAR("ナシ", Color(0xFFFBF189), 120.dp, 60.sp),
     APPLE("リンゴ", Color(0xFFE2372A), 100.dp, 50.sp),
     KAKI("カキ", Color(0xFFEE8D39), 80.dp, 40.sp),
@@ -39,7 +39,7 @@ enum class Fruit(
         }
     }
 
-    fun rankup(fruit: Fruit) = when(fruit) {
+    fun rankup() = when(this) {
         CHERRY -> STRAWBERRY
         STRAWBERRY -> GRAPE
         GRAPE -> DEKOPON

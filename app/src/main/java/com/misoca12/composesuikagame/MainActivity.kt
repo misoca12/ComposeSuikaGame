@@ -39,6 +39,9 @@ import de.apuri.physicslayout.lib.physicsBody
 import de.apuri.physicslayout.lib.simulation.rememberSimulation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+
+private val DEFAULT_SCALE = 32.dp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,23 +59,20 @@ fun GameScreen() {
     var fruitCounter by remember { mutableStateOf(0) }
     val fruits = remember { mutableStateListOf<FruitMeta>() }
 
+    val density = LocalDensity.current
+    val scalePx = density.run { DEFAULT_SCALE.toPx().toDouble() }
+
     Surface(
         modifier = Modifier.fillMaxSize().pointerInput(Unit) {
-            detectTapGestures {
-                fruits.add(FruitMeta("fruit-${fruitCounter++}", Fruit.random(), it))
-            }
+            detectTapGestures(
+                onPress = {
+                    fruits.add(FruitMeta("fruit-${fruitCounter++}", Fruit.random(), it))
+                }
+            )
         },
         color = MaterialTheme.colorScheme.background
     ) {
-        val simulation = rememberSimulation(onCollision = { id1: String, id2: String ->
-                Log.d("MainActivity", "onCollision $id1 and $id2")
-                val fruit1 = fruits.firstOrNull { it.id == id1 } ?: return@rememberSimulation
-                val fruit2 = fruits.firstOrNull { it.id == id2 } ?: return@rememberSimulation
-                if (fruit1.fruit == fruit2.fruit) {
-                    fruits.removeIf { it.id == id1 }
-                    fruits.removeIf { it.id == id2 }
-                }
-            })
+        val simulation = rememberSimulation()
 
         GravitySensor { (x, y) ->
             simulation.setGravity(Offset(-x, y).times(3f))
@@ -81,19 +81,33 @@ fun GameScreen() {
         PhysicsLayout(
             modifier = Modifier.systemBarsPadding(),
             simulation = simulation,
-//            shape = RoundedCornerShape(64.dp)
-        ) {
-            fruits.forEach { fruitMeta ->
-                key(fruitMeta.id) {
-                    FruitObject(
-                        fruitMeta
-                    ) { id ->
-                        fruits.removeIf { it.id == id }
+            content = {
+                fruits.forEach { fruitMeta ->
+                    key(fruitMeta.id) {
+                        FruitObject(
+                            fruitMeta
+                        ) { id ->
+                            // アイテムタップ時にID取得
+                        }
                     }
                 }
+            },
+            onCollision = { ids: Pair<String, String>, offset: Pair<Double, Double> ->
+                val fruit1 = fruits.firstOrNull { it.id == ids.first } ?: return@PhysicsLayout
+                val fruit2 = fruits.firstOrNull { it.id == ids.second } ?: return@PhysicsLayout
+                if (fruit1.fruit == fruit2.fruit) {
+                    fruits.removeIf { it.id == fruit1.id }
+                    fruits.removeIf { it.id == fruit2.id }
+                    val merged = fruit1.fruit.rankup() ?: return@PhysicsLayout
+                    val sizePx = density.run {merged.size.toPx()}
+                    val layoutOffset = Offset(
+                        offset.first.toFloat(),
+                        offset.second.toFloat() - sizePx / 2
+                    )
+                    fruits.add(FruitMeta("fruit-${fruitCounter++}", merged, layoutOffset))
+                }
             }
-        }
-
+        )
     }
 }
 
@@ -101,7 +115,7 @@ fun GameScreen() {
 @Composable
 fun FruitObject(
     fruitMeta: FruitMeta,
-    onClick: (String) -> Unit
+    onClick: ((String) -> Unit)? = null
 ) {
     val density = LocalDensity.current
     Box(
@@ -118,7 +132,7 @@ fun FruitObject(
                 .size(fruitMeta.fruit.size),
             shape = CircleShape,
             colors = CardDefaults.cardColors(containerColor = fruitMeta.fruit.color),
-            onClick = { onClick(fruitMeta.id) }
+            onClick = { onClick?.invoke(fruitMeta.id) }
         ) {
             Box(
                 modifier = Modifier.size(fruitMeta.fruit.size),
